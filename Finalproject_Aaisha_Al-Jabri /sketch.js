@@ -11,10 +11,16 @@ let text6;
 let text7;
 let text8;
 let pointcounter;
+let fairyidle;
 
+
+function preload(){
+	fairyidle= loadAnimation('fairyidle_0.png','fairyidle_1.png','fairyidle_2.png','fairyidle_3.png','fairyidle_4.png','fairyidle_5.png','fairyidle_6.png','fairyidle_7.png');
+	fairyidle.looping = false;
+}
 function setup(){
 	colorPicker = createColorPicker('#ed225d');
-  colorPicker.position(width-100, height + 400);
+  colorPicker.position(width+230, height + 400);
 	text1= 0;
 	text2= 0;
 	text3= 0;
@@ -104,6 +110,7 @@ function draw() {
   }else{
     text7 = 255;
   }
+animation(fairyidle, 600,700);
 }
 
 function mousePressed(){
