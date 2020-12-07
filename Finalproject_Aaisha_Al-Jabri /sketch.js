@@ -25,6 +25,8 @@ let resetimg;
 let volumeupimg;
 let volumedownimg;
 let count;
+let savedfiles;
+let canvas;
 let speed;
 let totalShapeCount;
 let brushnum;
@@ -40,28 +42,69 @@ let speed4;
 let colorbrush;
 let colorbrush2;
 let pixelbrushimg;
+let imagebrushcheck;
 let pixelbrushcheck;
-//let imgs =[];
+let moveX;
+let moveY;
+let index;
+let pointillize = 16;
+let skyimgone;
+let skyimgtwo;
+let skyimgthree;
+let imageoption;
+let imagecolor;
+let image2color;
+let image3color;
+let skyoption;
+let brushsound1;
+let brushsound2;
+let brushsound3;
+let brushsound4;
+let changex;
+let pixelbrushsize;
+let imgfill;
+let souncheck;
+let brushsoundcheck;
+
+//let imgs = [];
 //let savedimg;
 
 function preload() {
-	//imgs[i] = loadImage('Users/student/downloads/mycanvas_0.png');
-	pixelbrushimg = loadImage('pixelbrush.png');
+//for (i = 0; i < imgs.length; i ++ ) {
+    //imgs[i] = loadImage('/Users/student/downloads/mycanvas'+ count +'.png');
+ // }
+	flowerimg = loadImage('flower.png');
+	sunimg = loadImage('sun.png');
+	moonfaceimg = loadImage('moonface.png');
 	brush1img = loadImage('brush1.png');
 	brush2img = loadImage('brush2.png');
 	brush3img = loadImage('paintbrushes.png');
 	brush4img = loadImage('palette.png');
 	displayimg = loadImage('display.png');
-	volumeupimg = loadImage('volumeup.png');
-	volumedownimg = loadImage('volumedown.png');
+	soundimg = loadImage('volumeup.png');
+	nosoundimg = loadImage('nosound.png');
 	resetimg = loadImage('reset.png');
 	fairyidle = loadAnimation('fairyidle_0.png', 'fairyidle_1.png', 'fairyidle_2.png', 'fairyidle_3.png', 'fairyidle_4.png', 'fairyidle_5.png', 'fairyidle_6.png', 'fairyidle_7.png');
 	//fairyidle.looping = false;
 	fairyflying = loadAnimation('fairyfly_0.png', 'fairyfly_1.png', 'fairyfly_2.png', 'fairyfly_3.png', 'fairyfly_4.png', 'fairyfly_5.png', 'fairyfly_6.png', 'fairyfly_7.png');
+	skyimgone = loadImage("pastelsky.jpg");
+	skyimgtwo = loadImage("sunset.jpg");
+	skyimgthree = loadImage("beachskyimg.jpg");
+	brushsound1 = loadSound("brushone.mp3");  
+	brushsound2 = loadSound("brushone.mp3"); 
+  brushsound3 = loadSound("brushone.mp3"); 
+  brushsound4= loadSound("brushone.mp3"); 
 }
 
 function setup() {
-	createCanvas(800,800);
+	skyimgone.resize(800,800);
+	skyimgtwo.resize(800,800);
+	skyimgthree.resize(800,800);
+	skyoption=0;
+	pixelbrushsize=5;
+	souncheck = true;
+  brushsoundcheck= false;
+	imagebrushcheck = false;
 	pixelbrushcheck = false;
 	Shapebrushone = false;
 	Shapebrushtwo = false;
@@ -85,11 +128,13 @@ function setup() {
 	brushone = false;
 	brushtwo = false;
 	brushthree = false;
-	//savedimg = createCanvas(800, 800);
+	savedimg = createCanvas(800, 800);
 	fairy1sprite = createSprite(0, 0);
 	//fairy1sprite.scale=100;
 	fairy1sprite.addAnimation('standing', 'fairyidle_0.png', 'fairyidle_1.png', 'fairyidle_2.png', 'fairyidle_3.png', 'fairyidle_4.png', 'fairyidle_5.png', 'fairyidle_6.png', 'fairyidle_7.png');
 	brushtwosize = 100;
+	//background(colorPicker.color());
+	//savedimg = createCanvas(500,500);
 }
 
 function draw() {
@@ -123,6 +168,11 @@ function draw() {
 	image(resetimg, 10, 410, 50, 50)
 	fill(148, 44, 76);
 	rect(10, 670, 80, 20); //next task button 
+	fill(255);
+	rect(680,10, 50, 50);
+	image(soundimg,680,10,50,50);
+	rect(680,120, 50, 50);
+	image(nosoundimg,680,120,50,50);
 	fill(0);
 	text('points ' + '= ' + pointcounter, 10, 650);
 	fill(text1);
@@ -130,22 +180,23 @@ function draw() {
 	fill(text2);
 	text('pixels brush', 10, 160);
 	fill(text3);
-	text('blend brush', 10, 240);
+	text('sound brush', 10, 240);
 	fill(text4);
 	text('watercolor brush', 10, 320);
 	fill(text5);
-	text('display canvas', 10, 400);
+	text('image brush', 10, 400);
 	fill(text6);
 	text('reset canvas', 10, 480);
 	fill(text7);
 	text('next task', 20, 680);
 	fill(text8);
-	text('volume up', 680, 100);
+	text('sound', 680, 100);
 	fill(text9);
-	text('volume down', 680, 200);
+	text('nosound', 680, 200);
 	textSize(14);
 	text('color picker', 10, 540);
 	//print(frameCount);
+	//text for instructions appear over time
 	if (pointcounter == 0 && frameCount < 80) {
 		fill(0);
 		rect(450, 650, 300, 50);
@@ -191,18 +242,18 @@ function draw() {
 		text('press on (next task) to get', 460, 690);
 		text('the next painting prompt.', 460, 710);
 	}
-
-	if ((10 < mouseX) && (60 > mouseX) && (10 < mouseY) && (60 > mouseY)) {
+	//labels for brush icons
+	if ((10 < mouseX) && (60 > mouseX) && (10 < mouseY) && (60 > mouseY)) { //shapebrush label
 		text1 = 0;
 	} else {
 		text1 = 255;
 	}
-	if ((10 < mouseX) && (60 > mouseX) && (90 < mouseY) && (140 > mouseY)) {
+	if ((10 < mouseX) && (60 > mouseX) && (90 < mouseY) && (140 > mouseY)) {//
 		text2 = 0;
 	} else {
 		text2 = 255;
 	}
-	if ((10 < mouseX) && (60 > mouseX) && (170 < mouseY) && (230 > mouseY)) {
+	if ((10 < mouseX) && (60 > mouseX) && (170 < mouseY) && (230 > mouseY)) {//
 		text3 = 0;
 	} else {
 		text3 = 255;
@@ -226,7 +277,7 @@ function draw() {
 		text7 = 0;
 	} else {
 		text7 = 255;
-	}
+}
 }
 
 function mousePressed() {
@@ -235,39 +286,54 @@ function mousePressed() {
 		Shapebrushone = true;
 		brushtwo = false;
 		Shapebrushthree = false;
+		imagebrushcheck= false;
+		pixelbrushcheck= false;
 	}
 	if ((10 < mouseX) && (60 > mouseX) && (10 < mouseY) && (60 > mouseY) && (brushnum == 2)) { //shape brush two
 		Shapebrushone = false;
 		Shapebrushtwo = true;
 		Shapebrushthree = false;
 		brushtwo = false;
+		imagebrushcheck= false;
+		pixelbrushcheck= false;
 	}
 	if ((10 < mouseX) && (60 > mouseX) && (10 < mouseY) && (60 > mouseY) && (brushnum == 3)) { //shape brush three
 		Shapebrushthree = true;
 		Shapebrushtwo = false;
 		Shapebrushone = false;
 		brushtwo = false;
+		imagebrushcheck= false;
+		pixelbrushcheck= false;
 	}
-	if ((10 < mouseX) && (60 > mouseX) && (90 < mouseY) && (140 > mouseY)) { //
+	if ((10 < mouseX) && (60 > mouseX) && (90 < mouseY) && (140 > mouseY)) { //pixel brush 
 		pixelbrushcheck= true;
 		Shapebrushthree = false;
 		Shapebrushtwo = false;
 		Shapebrushone = false;
 		brushtwo = false;
+		imagebrushcheck = false;
 	}
-	if ((10 < mouseX) && (60 > mouseX) && (170 < mouseY) && (230 > mouseY)) {
+	if ((10 < mouseX) && (60 > mouseX) && (170 < mouseY) && (230 > mouseY)) {//blend brush 
 		brushthree = true;
 	}
-	if ((10 < mouseX) && (60 > mouseX) && (250 < mouseY) && (300 > mouseY)) {
+	if ((10 < mouseX) && (60 > mouseX) && (250 < mouseY) && (300 > mouseY)) { //watercolor brush 
 		brushtwo = true;
+		imagebrushcheck= false;
+		Shapebrushthree = false;
 		Shapebrushtwo = false;
 		Shapebrushone = false;
-		Shapebrushthree = false;
+		pixelbrushcheck= false;
 
 	}
-	if ((10 < mouseX) && (60 > mouseX) && (330 < mouseY) && (380 > mouseY)) {
+	if ((10 < mouseX) && (60 > mouseX) && (330 < mouseY) && (380 > mouseY)) {//image brush + add more image options 
 		//canvas = loadImage('/Users/student/downloads/mycanvas'+ count +'.png'); 
-		displayimages();
+		//displayimages();
+		imagebrushcheck= true;
+		Shapebrushthree = false;
+		Shapebrushtwo = false;
+		Shapebrushone = false;
+		brushtwo = false;
+		pixelbrushcheck= false;
 	}
 	if ((10 < mouseX) && (60 > mouseX) && (410 < mouseY) && (460 > mouseY)) {
 		clear();
@@ -276,15 +342,23 @@ function mousePressed() {
 		//clear();
 		pointcounter += 20;
 		count += 1;
-		console.log('mycanvas' + count);
-		//savedimg= saveCanvas('mycanvas_' + count);
-		//imgs.push(savedimg;
+		//console.log('mycanvas' + count);
+		//saveCanvas(savedimg, 'mycanvas_' + count);
 	}
+	if ((680 < mouseX) &&(730 > mouseX) && (10 < mouseY) && (60 > mouseY)) {
+		soundcheck= true;
+    print('soundcheckon');
+	}
+  if ((680 < mouseX) && (730 > mouseX) && (120 < mouseY) && (170 > mouseY)) {
+		soundcheck=false; 
+		print('nosound');
+}
 }
 
 function mouseDragged() {
 	if (Shapebrushone) {
 		patternone(30, 3, 10);
+		playSound(brushsound1);
 	}
 	if (Shapebrushtwo) {
 
@@ -304,25 +378,77 @@ function mouseDragged() {
 	if (brushtwo) {
 		Brushtwo();
 	}
-	if(pixelbrushcheck){
+	if((imagebrushcheck)&&(imageoption==1)){
+		imagebrush(flowerimg);
+	
+	}
+		if((imagebrushcheck)&&(imageoption==2)){
+		imagebrush(sunimg);
+	}
+		if((imagebrushcheck)&&(imageoption==3)){
+		imagebrush(moonfaceimg);
+
+	}
+	if((pixelbrushcheck)&&(skyoption==1)) {
+		imgfill = skyimgone.get(mouseX, mouseY); 
+		pixelbrush();
+	}
+		if((pixelbrushcheck)&&(skyoption==2)) {
+		imgfill = skyimgtwo.get(mouseX, mouseY); 
+		pixelbrush();
+	}
+		if((pixelbrushcheck)&&(skyoption==3)) {
+		imgfill = skyimgthree.get(mouseX, mouseY); 
 		pixelbrush();
 	}
 }
+function playSound(songname){
+	if (soundcheck){
+	let volume = map(mouseX, 0, width, 0, 0.01);
+	let soundspeed = map(mouseY, 0, height, 0, 1);
+  soundspeed = constrain(soundspeed, 0.01, 4);
+	songname.play();
+  //brushsound1.loop();
+	songname.amp(volume);
+	songname.rate(soundspeed);
+	print('songplayed');
+	}
+	else{
+		songname.stop();
+	}
+}
+
 
 function BrushShapeThree() {
+	movex= mouseX+10;
+	movey= mouseY+10;
+	//let brushtime = sin(frameCount / 10) * 30;
 	noStroke();
+	push();
 	speed4 = abs(mouseX - pmouseX) + abs(mouseX - pmouseY);
 	//let xbrush = random(-10, 10);
 	//let ybrush = random(-10, 10);
-	ellipseMode(CENTER);
-	fill(frameCount % 360, 20 + speed4, 100);
-	let brushtime = sin(frameCount / 10) * 30;
-	ellipse(mouseX, mouseY, brushtime + 60);
+	for (i=0; i<5; i++){
+		fill(frameCount % 360, 20 + speed4, speed4);
+		translate(movex,movey);
+		rotate(frameCount*0.01);
+	  scale(sin(frameCount*0.05) + 1.5 );
+    star(mouseX, mouseY, 30, 70, 5);
+		movex-= 1;
+	  movey-= 1;
+	}
+	pop();
 }
 
 function patternone(changex, scalex, scaley) { //setting paarmeters 
 	//for the color of and the size of ellipses
 	speed3 = abs(mouseX - pmouseX) + abs(mouseX - pmouseY);
+	//if(brushsound1.isPlaying()){
+   // console.log("yes");
+  //}
+  //else console.log("no");
+ // }
+	
 	push();
 	translate(mouseX, mouseY); //moving the pattern to where the mouse is 
 	for (j = 0; j < changex; j++) { //this code will be run until j is bigger than fifty
@@ -353,6 +479,24 @@ function keyPressed() {
 	if (key == "3") {
 		brushnum = 3;
 	}
+  if (key =="a"){
+		imageoption = 1;
+	}
+	if (key =="b"){
+		imageoption= 2;
+	}
+	if (key =="c"){
+		imageoption= 3;
+		}	
+	 if (key =="s"){
+		skyoption = 1;
+	}
+	if (key =="k"){
+		skyoption= 2;
+	}
+	if (key =="y"){
+		skyoption= 3;
+		}	
 }
 
 function RandomShapes(x, y, px, py, choice, color) {
@@ -361,25 +505,27 @@ function RandomShapes(x, y, px, py, choice, color) {
 		//stroke(speed);
 		noStroke();
 		fill(color);
+		rotate(frameCount*0.01);
 		ellipse(x, y, speed, speed);
 	} else {
 		//stroke(0,speed);
 		noStroke();
 		fill(color);
+		rotate(frameCount*0.01);
 		rect(x, y, speed, speed);
 	}
 }
 
 function Brushtwo() {
 	speed2 = abs(mouseX - pmouseX) + abs(mouseX - pmouseY);
-	brushtwosize = speed2 - 50;
+	brushtwosize = speed2;
 	print('watercolor');
 	if (mouseIsPressed == true) {
 		for (i = 0; i < brushtwosize; i += 1) {
 			let thisX = mouseX + random(-i, i);
 			let thisY = mouseY + random(-i, i);
 			noStroke();
-			fill(random(136), 32, 227, 5);
+			fill(random(136), 32,brushtwosize%frameCount, 5);
 			beginShape();
 			vertex(mouseX, mouseY);
 			bezierVertex(lastX, lastY, thisX, thisY, thisX, thisY);
@@ -391,18 +537,51 @@ function Brushtwo() {
 	}
 }
 //function displayimages(){
-	//for (i = 0; i < imgs.length; i ++ ) {
-    //image(imgs[i], random(width), random(height)); 
- //}
-
+	// print('image displayed');
+	// for (var i=0; i<5; i++) {
+   // image(imgs[i], random(width), random(height)); 
+ // }
 //}
 
-function pixelbrush() {
+function pixelbrush(){
+				noStroke();
+				fill(imgfill);
+				ellipse(mouseX, mouseY,pixelbrushsize,pixelbrushsize);
+}
+
+function mouseWheel (event){
+	let mouse= event.delta;
+	if(mouse>0){
+	pixelbrushsize+=2;
+	}
+	if(mouse<0){
+		pixelbrushsize-=2;
+		if(pixelbrushsize <=1){
+		pixelbrushsize = 5;
+}
+	}
+}
+function imagebrush(imagechoice) {
   push();
   translate(mouseX, mouseY);
-	tint(random(255), 70,100);
+	tint(random(255),245,177);
   scale(sin(frameCount*0.05) + 1.5 );
   rotate(frameCount*0.01);
- 	image(pixelbrushimg, 0, 0, 100,100); 
+ 	image(imagechoice, 0, 0, 100,100); 
   pop();
+}
+
+function star(x, y, radius1, radius2, npoints) {//https://p5js.org/examples/form-star.html
+  let angle = TWO_PI / npoints;
+  let halfAngle = angle / 2.0;
+  beginShape();
+  for (let a = 0; a < TWO_PI; a += angle) {
+    let sx = x + cos(a) * radius2;
+    let sy = y + sin(a) * radius2;
+    vertex(sx, sy);
+    sx = x + cos(a + halfAngle) * radius1;
+    sy = y + sin(a + halfAngle) * radius1;
+    vertex(sx, sy);
+  }
+  endShape(CLOSE);
 }
